@@ -8,11 +8,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "resultats")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Getter @Setter @SuperBuilder
+@NoArgsConstructor @AllArgsConstructor
 public class Resultat extends BaseEntity {
 
     @Column(nullable = false)
