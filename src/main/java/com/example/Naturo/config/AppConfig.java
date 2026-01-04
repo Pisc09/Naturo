@@ -17,6 +17,7 @@ public class AppConfig {
      * des utilisateurs et des admins.
      * BCrypt est l'algorithme recommandé par Spring Security.
      */
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

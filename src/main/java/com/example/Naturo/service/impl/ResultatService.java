@@ -1,4 +1,4 @@
-package com.example.Naturo.service;
+package com.example.Naturo.service.impl;
 
 import com.example.Naturo.entity.Resultat;
 import com.example.Naturo.entity.User;
@@ -11,7 +11,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ResultatService {
 
     private final ResultatRepository resultatRepository;
@@ -20,17 +19,28 @@ public class ResultatService {
         return resultatRepository.findAll();
     }
 
-    // Résultats saisis par un praticien
     public List<Resultat> findByPraticien(User praticien) {
         return resultatRepository.findAll().stream()
                 .filter(r -> r.getPraticien().equals(praticien))
                 .toList();
     }
 
-    // Résultats concernant un membre
     public List<Resultat> findByMembre(User membre) {
         return resultatRepository.findAll().stream()
                 .filter(r -> r.getMembre().equals(membre))
+                .toList();
+    }
+
+    // Nouvelles méthodes pour le contrôleur
+    public List<Resultat> findByPraticienId(Long praticienId) {
+        return resultatRepository.findAll().stream()
+                .filter(r -> r.getPraticien() != null && r.getPraticien().getId().equals(praticienId))
+                .toList();
+    }
+
+    public List<Resultat> findByMembreId(Long membreId) {
+        return resultatRepository.findAll().stream()
+                .filter(r -> r.getMembre() != null && r.getMembre().getId().equals(membreId))
                 .toList();
     }
 

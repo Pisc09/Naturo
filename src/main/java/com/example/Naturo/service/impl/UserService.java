@@ -1,4 +1,4 @@
-package com.example.Naturo.service;
+package com.example.Naturo.service.impl;
 
 import com.example.Naturo.entity.User;
 import com.example.Naturo.entity.enums.TypeAbonnement;
@@ -6,7 +6,6 @@ import com.example.Naturo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -37,7 +35,6 @@ public class UserService {
     }
 
     // Création d'un nouvel utilisateur (inscription)
-    @Transactional
     public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // Tu peux ajouter des rôles par défaut ici si besoin
@@ -45,13 +42,11 @@ public class UserService {
     }
 
     // Mise à jour
-    @Transactional
     public User updateUser(User user) {
         return userRepository.save(user);
     }
 
     // Suppression
-    @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

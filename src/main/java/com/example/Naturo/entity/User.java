@@ -3,6 +3,7 @@ package com.example.Naturo.entity;
 import com.example.Naturo.entity.embeddable.MembreInfo;
 import com.example.Naturo.entity.embeddable.PraticienInfo;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -10,18 +11,21 @@ import java.util.*;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
+@Getter @Setter @SuperBuilder
+@NoArgsConstructor @AllArgsConstructor
 public class User extends BaseEntity {
 
     // Champs communs
+    @Column(unique = true, nullable = false)
     private String username;
     private String firstname;
     private String lastname;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+    message = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.")
     private String password;
     private String phone;
     private Date dateOfBirth;

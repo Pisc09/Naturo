@@ -1,4 +1,4 @@
-package com.example.Naturo.service;
+package com.example.Naturo.service.impl;
 
 import com.example.Naturo.entity.Rdv;
 import com.example.Naturo.entity.enums.TypeAbonnement;
