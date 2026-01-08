@@ -12,12 +12,8 @@ import java.time.LocalDate;
 @NoArgsConstructor @AllArgsConstructor
 public class Resultat extends BaseEntity {
 
-    @Column(nullable = false)
     private LocalDate dateSaisie; // date à laquelle le praticien entre le résultat
-
-    @Column(nullable = false)
     private Double valeur; // valeur numérique saisie (ex. : 45.6)
-
     private String commentaire; // commentaire libre du praticien
 
     // Type d'analyse (lié aux normes)

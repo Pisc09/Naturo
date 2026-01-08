@@ -1,9 +1,8 @@
 package com.example.Naturo.controller;
 
-import com.example.Naturo.entity.Offre;
-import com.example.Naturo.entity.User;
-import com.example.Naturo.service.impl.OffreService;
-import com.example.Naturo.service.impl.UserService;
+import com.example.Naturo.request.OffreRequest;
+import com.example.Naturo.response.OffreResponse;
+import com.example.Naturo.service.IOffre;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,37 +17,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OffreController {
 
-    private final OffreService offreService;
-    private final UserService userService; // Pour vérifier l'existence du praticien
+    private final IOffre offreService;
 
-    /**
-     * Catalog public : toutes les offres visibles par les membres
-     */
+    // Catalogue public (membres)
     @GetMapping("/public")
-    public ResponseEntity<List<Offre>> getOffresPubliques() {
-        List<Offre> offres = offreService.findOffresVisibles();
-        return ResponseEntity.ok(offres);
+    public ResponseEntity<List<OffreResponse>> getOffresPubliques() {
+        return ResponseEntity.ok(offreService.findOffresVisibles());
     }
 
-    /**
-     * Offres appartenant à un praticien spécifique (pour son dashboard)
-     */
+    // Offres d'un praticien (dashboard praticien)
     @GetMapping("/praticien/{praticienId}")
-    public ResponseEntity<List<Offre>> getOffresByPraticien(@PathVariable Long praticienId) {
-        // Vérification que le praticien existe (sécurité + UX)
-        User praticien = userService.findById(praticienId)
-                .orElseThrow(() -> new IllegalArgumentException("Praticien non trouvé avec l'ID : " + praticienId));
-
-        List<Offre> offres = offreService.findByPraticien(praticien);
-        return ResponseEntity.ok(offres);
+    public ResponseEntity<List<OffreResponse>> getOffresByPraticien(@PathVariable Long praticienId) {
+        return ResponseEntity.ok(offreService.findByPraticienId(praticienId));
     }
 
-    /**
-     * Création d'une nouvelle offre (réservé au praticien propriétaire)
-     */
+    // Toutes les offres (admin)
+    @GetMapping
+    public ResponseEntity<List<OffreResponse>> getAllOffres() {
+        return ResponseEntity.ok(offreService.findAll());
+    }
+
     @PostMapping
-    public ResponseEntity<Offre> createOffre(@Valid @RequestBody Offre offre) {
-        Offre created = offreService.createOffre(offre);
+    public ResponseEntity<OffreResponse> createOffre(@Valid @RequestBody OffreRequest request) {
+        OffreResponse created = offreService.createOffre(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -59,36 +50,17 @@ public class OffreController {
         return ResponseEntity.created(location).body(created);
     }
 
-    /**
-     * Mise à jour d'une offre existante
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<Offre> updateOffre(@PathVariable Long id, @Valid @RequestBody Offre offre) {
-        // Vérification que l'offre existe
-        if (!offreService.findAll().stream().anyMatch(o -> o.getId().equals(id))) {
-            return ResponseEntity.notFound().build();
-        }
-        offre.setId(id);
-        Offre updated = offreService.updateOffre(offre);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<OffreResponse> updateOffre(@PathVariable Long id, @Valid @RequestBody OffreRequest request) {
+        return ResponseEntity.ok(offreService.updateOffre(id, request));
     }
 
-    /**
-     * Suppression d'une offre
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOffre(@PathVariable Long id) {
-        // Vérification existence avant suppression
-        if (!offreService.findAll().stream().anyMatch(o -> o.getId().equals(id))) {
-            return ResponseEntity.notFound().build();
-        }
         offreService.deleteOffre(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Activer/désactiver la visibilité d'une offre (pratique pour le praticien)
-     */
     @PatchMapping("/{id}/visibilite")
     public ResponseEntity<Void> toggleVisibilite(@PathVariable Long id) {
         offreService.toggleVisibilite(id);

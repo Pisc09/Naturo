@@ -1,7 +1,8 @@
 package com.example.Naturo.controller;
 
-import com.example.Naturo.entity.User;
-import com.example.Naturo.service.impl.UserService;
+import com.example.Naturo.request.UserRequest;
+import com.example.Naturo.response.UserResponse;
+import com.example.Naturo.service.IUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,48 +17,47 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final IUser userService;
 
-    // Liste tous les utilisateurs (admin seulement plus tard)
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    // Récupérer un utilisateur par ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Inscription d'un nouvel utilisateur (membre ou praticien)
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
-        User created = userService.createUser(user);
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRequest request) {
+        UserResponse created = userService.createUser(request);
+
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
+
         return ResponseEntity.created(location).body(created);
     }
 
-    // Mise à jour du profil
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-        if (!userService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        user.setId(id);
-        return ResponseEntity.ok(userService.updateUser(user));
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    // Suppression (admin seulement plus tard)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/toggle-enable")
+    public ResponseEntity<Void> toggleEnable(@PathVariable Long id) {
+        userService.toggleEnable(id);
         return ResponseEntity.noContent().build();
     }
 }

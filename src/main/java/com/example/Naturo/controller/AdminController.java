@@ -1,7 +1,8 @@
 package com.example.Naturo.controller;
 
-import com.example.Naturo.entity.Admin;
-import com.example.Naturo.service.impl.AdminService;
+import com.example.Naturo.request.AdminRequest;
+import com.example.Naturo.response.AdminResponse;
+import com.example.Naturo.service.IAdmin;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,48 +13,49 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/admins")
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AdminService adminService;
+    private final IAdmin adminService;
 
     @GetMapping
-    public ResponseEntity<List<Admin>> getAllAdmins() {
+    public ResponseEntity<List<AdminResponse>> getAllAdmins() {
         return ResponseEntity.ok(adminService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Admin> getAdminById(@PathVariable Long id) {
-        return adminService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AdminResponse> getAdminById(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.findById(id));
     }
 
-    // Création d'un admin (seulement par un SUPER admin plus tard)
     @PostMapping
-    public ResponseEntity<Admin> createAdmin(@Valid @RequestBody Admin admin) {
-        Admin created = adminService.createAdmin(admin);
+    public ResponseEntity<AdminResponse> createAdmin(@Valid @RequestBody AdminRequest request) {
+        AdminResponse created = adminService.createAdmin(request);
+
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
+
         return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Admin> updateAdmin(@PathVariable Long id, @Valid @RequestBody Admin admin) {
-        if (!adminService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        admin.setId(id);
-        return ResponseEntity.ok(adminService.updateAdmin(admin));
+    public ResponseEntity<AdminResponse> updateAdmin(@PathVariable Long id, @Valid @RequestBody AdminRequest request) {
+        return ResponseEntity.ok(adminService.updateAdmin(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/desactiver")
+    public ResponseEntity<Void> desactiverAdmin(@PathVariable Long id) {
+        adminService.desactiverAdmin(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 public class AnalyseType extends BaseEntity {
 
     @Column(nullable = false, unique = true)
-    private String lastname; // ex. : "Ferritine", "Vitamine D", "Cortisol matin", "TSH"
+    private String nom; // ex. : "Ferritine", "Vitamine D", "Cortisol matin", "TSH"
 
     private String unite; // ex. : "ng/mL", "µg/L", "nmol/L"
 

@@ -1,9 +1,8 @@
 package com.example.Naturo.request;
 
 import com.example.Naturo.entity.enums.TypeAbonnement;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,13 +12,18 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class AbonnementRequest {
-    @Column(nullable = false, precision = 10, scale = 2)
+
+    @NotNull(message = "Le montant est obligatoire")
+    @Positive(message = "Le montant doit être positif")
     private BigDecimal montant;
-    @Column(name = "date_debut", nullable = false)
+
     private LocalDate dateDebut;
-    @Column(name = "date_fin") // null = reconduction tacite
+
     private LocalDate dateFin;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+
+    @NotNull(message = "Le type d'abonnement est obligatoire")
     private TypeAbonnement type;
+
+    @NotNull(message = "L'ID de l'utilisateur est obligatoire")
+    private Long userId; // Ajouté pour associer l'abonnement à l'utilisateur
 }

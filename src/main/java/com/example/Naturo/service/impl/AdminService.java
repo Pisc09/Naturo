@@ -1,47 +1,86 @@
 package com.example.Naturo.service.impl;
 
 import com.example.Naturo.entity.Admin;
-import com.example.Naturo.entity.enums.NiveauAdmin;
+import com.example.Naturo.mapper.AdminMapper;
 import com.example.Naturo.repository.AdminRepository;
+import com.example.Naturo.request.AdminRequest;
+import com.example.Naturo.response.AdminResponse;
+import com.example.Naturo.service.IAdmin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+@Transactional(readOnly = true)
+public class AdminService implements IAdmin {
 
     private final AdminRepository adminRepository;
+    private final AdminMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
-    public List<Admin> findAll() {
-        return adminRepository.findAll();
+    @Override
+    public List<AdminResponse> findAll() {
+        return mapper.toResponseList(adminRepository.findAll());
     }
 
-    public Optional<Admin> findById(Long id) {
-        return adminRepository.findById(id);
+    @Override
+    public AdminResponse findById(Long id) {
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Admin non trouvé avec l'ID : " + id));
+        return mapper.toResponse(admin);
     }
 
-    public Optional<Admin> findByEmail(String email) {
-        return adminRepository.findByEmail(email);
+    @Override
+    public AdminResponse findByEmail(String email) {
+        Admin admin = adminRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Admin non trouvé avec l'email : " + email));
+        return mapper.toResponse(admin);
     }
 
-    public Admin createAdmin(Admin admin) {
-        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-        if (admin.getNiveau() == null) {
-            admin.setNiveau(NiveauAdmin.STANDARD);
+    @Override
+    @Transactional
+    public AdminResponse createAdmin(AdminRequest request) {
+        Admin admin = mapper.toEntity(request);
+        admin.setPassword(passwordEncoder.encode(request.getPassword()));
+        Admin saved = adminRepository.save(admin);
+        return mapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public AdminResponse updateAdmin(Long id, AdminRequest request) {
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Admin non trouvé"));
+
+        mapper.updateEntityFromRequest(request, admin);
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            admin.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        return adminRepository.save(admin);
+
+        Admin updated = adminRepository.save(admin);
+        return mapper.toResponse(updated);
     }
 
-    public Admin updateAdmin(Admin admin) {
-        return adminRepository.save(admin);
-    }
-
+    @Override
+    @Transactional
     public void deleteAdmin(Long id) {
+        if (!adminRepository.existsById(id)) {
+            throw new IllegalArgumentException("Admin non trouvé");
+        }
         adminRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void desactiverAdmin(Long id) {
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Admin non trouvé"));
+        admin.setActif(false);
+        adminRepository.save(admin);
     }
 }

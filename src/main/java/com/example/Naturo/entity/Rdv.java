@@ -13,21 +13,12 @@ import java.time.LocalTime;
 @Getter @Setter @SuperBuilder
 public class Rdv extends BaseEntity {
 
-    @Column(nullable = false)
     private LocalDate date;
-
-    @Column(name = "debut_heure", nullable = false)
     private LocalTime debutHeure;
-
-    @Column(name = "fin_heure", nullable = false)
     private LocalTime finHeure;
-
     private String lieu;
-
     private String description;
-
     private String link;  // lien visio
-
     private String type;  // bilan, suivi, etc.
 
     // Praticien qui anime la consultation

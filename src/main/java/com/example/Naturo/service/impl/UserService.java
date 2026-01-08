@@ -1,63 +1,90 @@
 package com.example.Naturo.service.impl;
 
 import com.example.Naturo.entity.User;
-import com.example.Naturo.entity.enums.TypeAbonnement;
+import com.example.Naturo.mapper.UserMapper;
 import com.example.Naturo.repository.UserRepository;
+import com.example.Naturo.request.UserRequest;
+import com.example.Naturo.response.UserResponse;
+import com.example.Naturo.service.IUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 @RequiredArgsConstructor
-public class UserService {
+@Transactional(readOnly = true)
+public class UserService implements IUser {
 
     private final UserRepository userRepository;
+    private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
-    // Récupérer tous les utilisateurs
-    public List<User> findAll() {
-        return userRepository.findAll();
+    @Override
+    public List<UserResponse> findAll() {
+        return mapper.toResponseList(userRepository.findAll());
     }
 
-    // Trouver par ID
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    @Override
+    public Optional<UserResponse> findById(Long id) {
+        return userRepository.findById(id)
+                .map(mapper::toResponse);
     }
 
-    // Trouver par email
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    @Override
+    public Optional<UserResponse> findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(mapper::toResponse);
     }
 
-    // Création d'un nouvel utilisateur (inscription)
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        // Tu peux ajouter des rôles par défaut ici si besoin
-        return userRepository.save(user);
+    @Override
+    @Transactional
+    public UserResponse createUser(UserRequest request) {
+        User user = mapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // Rôles par défaut selon le type d'inscription (à adapter selon ta logique)
+        user.setRoles(new HashSet<>()); // ex. : ajouter "MEMBRE" ou "PRATICIEN" selon le formulaire
+
+        User saved = userRepository.save(user);
+        return mapper.toResponse(saved);
     }
 
-    // Mise à jour
-    public User updateUser(User user) {
-        return userRepository.save(user);
+    @Override
+    @Transactional
+    public UserResponse updateUser(Long id, UserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+
+        mapper.updateEntityFromRequest(request, user);
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        User updated = userRepository.save(user);
+        return mapper.toResponse(updated);
     }
 
-    // Suppression
+    @Override
+    @Transactional
     public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("Utilisateur non trouvé");
+        }
         userRepository.deleteById(id);
     }
 
-    // Vérifier si un utilisateur a un abonnement actif du bon type
-    public boolean hasAbonnementActif(User user, TypeAbonnement typeRequis) {
-        if (user.getAbonnements() == null) return false;
-
-        return user.getAbonnements().stream()
-                .anyMatch(ab -> ab.isActif()
-                        && ab.getType().equals(typeRequis)
-                        && (ab.getDateFin() == null || ab.getDateFin().isAfter(LocalDate.now())));
+    @Override
+    @Transactional
+    public void toggleEnable(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+        user.setEnable(!user.isEnable());
+        userRepository.save(user);
     }
 }

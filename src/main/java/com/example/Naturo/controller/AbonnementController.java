@@ -1,7 +1,8 @@
 package com.example.Naturo.controller;
 
-import com.example.Naturo.entity.Abonnement;
-import com.example.Naturo.service.impl.AbonnementService;
+import com.example.Naturo.request.AbonnementRequest;
+import com.example.Naturo.response.AbonnementResponse;
+import com.example.Naturo.service.IAbonnement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,25 +17,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AbonnementController {
 
-    private final AbonnementService abonnementService;
+    private final IAbonnement abonnementService;
 
-    // Tous les abonnements "Admin"
     @GetMapping
-    public ResponseEntity<List<Abonnement>> getAll() {
+    public ResponseEntity<List<AbonnementResponse>> getAll() {
         return ResponseEntity.ok(abonnementService.findAll());
     }
 
-    // Abonnements d'un utilisateur
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Abonnement>> getByUser(@PathVariable Long userId) {
-        List<Abonnement> abonnements = abonnementService.findByUserId(userId);
-        return ResponseEntity.ok(abonnements);
+    public ResponseEntity<List<AbonnementResponse>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(abonnementService.findByUserId(userId));
     }
 
-    // Souscription à un nouvel abonnement
     @PostMapping
-    public ResponseEntity<Abonnement> createAbonnement(@Valid @RequestBody Abonnement abonnement) {
-        Abonnement created = abonnementService.createAbonnement(abonnement);
+    public ResponseEntity<AbonnementResponse> createAbonnement(@Valid @RequestBody AbonnementRequest request) {
+        AbonnementResponse created = abonnementService.createAbonnement(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -45,7 +42,12 @@ public class AbonnementController {
         return ResponseEntity.created(location).body(created);
     }
 
-    // Désactivation (expiration ou annulation)
+    @PutMapping("/{id}")
+    public ResponseEntity<AbonnementResponse> updateAbonnement(@PathVariable Long id, @Valid @RequestBody AbonnementRequest request) {
+        AbonnementResponse updated = abonnementService.updateAbonnement(id, request);
+        return ResponseEntity.ok(updated);
+    }
+
     @PatchMapping("/{id}/desactiver")
     public ResponseEntity<Void> desactiver(@PathVariable Long id) {
         abonnementService.desactiverAbonnement(id);
