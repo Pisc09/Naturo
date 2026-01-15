@@ -1,5 +1,6 @@
 package com.example.Naturo.request;
 
+import com.example.Naturo.entity.enums.TypeGender;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -18,10 +19,12 @@ public class UserRequest {
 
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Pattern(
-            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            regexp = "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*_.-]).{8,}",
             message = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial"
     )
     private String password;
+
+    private String username;
 
     private String firstname;
 
@@ -31,7 +34,7 @@ public class UserRequest {
 
     private LocalDate dateOfBirth;
 
-    private String gender; // "M", "F", "AUTRE"
+    private TypeGender gender; // "M", "F"
 
     // Pour les rôles (ex. : inscription en tant que praticien)
     private String role; // "MEMBRE" ou "PRATICIEN" (on gérera les rôles via Set plus tard si besoin)

@@ -2,10 +2,13 @@ package com.example.Naturo.entity;
 
 import com.example.Naturo.entity.embeddable.MembreInfo;
 import com.example.Naturo.entity.embeddable.PraticienInfo;
+import com.example.Naturo.entity.enums.TypeGender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
@@ -13,23 +16,25 @@ import java.util.*;
 @Table(name = "users")
 @Getter @Setter @SuperBuilder
 @NoArgsConstructor @AllArgsConstructor
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     // Champs communs
     @Column(unique = true, nullable = false)
     private String username;
+
     private String firstname;
     private String lastname;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-    message = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.")
     private String password;
     private String phone;
     private Date dateOfBirth;
-    private String gender;
+
+    @Enumerated(EnumType.STRING)
+    private TypeGender gender;
+
     private boolean enable;
     private String provider;
     private String role;
@@ -95,5 +100,20 @@ public class User extends BaseEntity {
     public void addRdvPris(Rdv rdv) {
         rdvPris.add(rdv);
         rdv.setMembre(this);
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

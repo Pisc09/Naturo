@@ -7,18 +7,23 @@ import com.example.Naturo.request.UserRequest;
 import com.example.Naturo.response.UserResponse;
 import com.example.Naturo.service.IUser;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class UserService implements IUser {
+public class UserService implements IUser, UserDetailsService, UserDetailsPasswordService {
 
     private final UserRepository userRepository;
     private final UserMapper mapper;
@@ -42,20 +47,19 @@ public class UserService implements IUser {
     }
 
     @Override
-    @Transactional
     public UserResponse createUser(UserRequest request) {
         User user = mapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Rôles par défaut selon le type d'inscription (à adapter selon ta logique)
         user.setRoles(new HashSet<>()); // ex. : ajouter "MEMBRE" ou "PRATICIEN" selon le formulaire
-
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         User saved = userRepository.save(user);
         return mapper.toResponse(saved);
     }
 
     @Override
-    @Transactional
     public UserResponse updateUser(Long id, UserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
@@ -71,7 +75,6 @@ public class UserService implements IUser {
     }
 
     @Override
-    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("Utilisateur non trouvé");
@@ -80,11 +83,26 @@ public class UserService implements IUser {
     }
 
     @Override
-    @Transactional
     public void toggleEnable(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
         user.setEnable(!user.isEnable());
         userRepository.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            User user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'email : " + username));
+            return user;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public UserDetails updatePassword(UserDetails user, @Nullable String newPassword) {
+        return null;
     }
 }

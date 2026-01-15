@@ -18,6 +18,8 @@ public class AdminRequest {
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String password;
 
+    private String username;
+
     private String firstname;
 
     private String lastname;

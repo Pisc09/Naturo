@@ -11,14 +11,14 @@ import java.util.List;
 public interface AdminMapper {
 
     @Mapping(target = "actif", constant = "true")
-    @Mapping(target = "motDePasse", ignore = true) // géré manuellement (hash)
+    @Mapping(target = "password", ignore = true) // géré manuellement (hash)
     Admin toEntity(AdminRequest request);
 
     AdminResponse toResponse(Admin admin);
 
     List<AdminResponse> toResponseList(List<Admin> admins);
 
-    @Mapping(target = "motDePasse", ignore = true)
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

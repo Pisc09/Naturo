@@ -1,5 +1,6 @@
 package com.example.Naturo.response;
 
+import com.example.Naturo.entity.enums.TypeGender;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,8 @@ public class UserResponse {
 
     private String email;
 
+    private String username;
+
     private String firstname;
 
     private String lastname;
@@ -23,7 +26,7 @@ public class UserResponse {
 
     private LocalDate dateOfBirth;
 
-    private String gender;
+    private TypeGender gender; // "M", "F"
 
     private boolean enable;
 
