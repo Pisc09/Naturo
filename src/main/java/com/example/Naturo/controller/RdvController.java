@@ -5,6 +5,7 @@ import com.example.Naturo.response.RdvResponse;
 import com.example.Naturo.service.IRdv;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rdv")
+@RequestMapping(value = "/api/rdv", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class RdvController {
 
@@ -52,7 +53,7 @@ public class RdvController {
     }
 
     // Mise à jour (ex. annulation ou report)
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RdvResponse> updateRdv(@PathVariable Long id, @Valid @RequestBody RdvRequest request) {
         return ResponseEntity.ok(rdvService.updateRdv(id, request));
     }

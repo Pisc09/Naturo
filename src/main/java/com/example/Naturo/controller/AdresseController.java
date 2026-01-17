@@ -5,6 +5,7 @@ import com.example.Naturo.response.AdresseResponse;
 import com.example.Naturo.service.IAdresse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/adresses")
+@RequestMapping(value = "/api/adresses", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class AdresseController {
 
@@ -42,7 +43,7 @@ public class AdresseController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AdresseResponse> updateAdresse(@PathVariable Long id, @Valid @RequestBody AdresseRequest request) {
         return ResponseEntity.ok(adresseService.updateAdresse(id, request));
     }

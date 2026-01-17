@@ -1,6 +1,7 @@
 package com.example.Naturo.service.impl;
 
 import com.example.Naturo.entity.User;
+import com.example.Naturo.exception.ResourceNotFoundException;
 import com.example.Naturo.mapper.UserMapper;
 import com.example.Naturo.repository.UserRepository;
 import com.example.Naturo.request.UserRequest;
@@ -41,6 +42,15 @@ public class UserService implements IUser, UserDetailsService, UserDetailsPasswo
     }
 
     @Override
+    public UserResponse findByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .map(mapper::toResponse)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", id)
+                );
+    }
+
+    @Override
     public Optional<UserResponse> findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(mapper::toResponse);
@@ -62,7 +72,7 @@ public class UserService implements IUser, UserDetailsService, UserDetailsPasswo
     @Override
     public UserResponse updateUser(Long id, UserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
 
         mapper.updateEntityFromRequest(request, user);
 
@@ -77,7 +87,7 @@ public class UserService implements IUser, UserDetailsService, UserDetailsPasswo
     @Override
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("Utilisateur non trouvé");
+            throw new ResourceNotFoundException("User", id);
         }
         userRepository.deleteById(id);
     }
@@ -85,7 +95,7 @@ public class UserService implements IUser, UserDetailsService, UserDetailsPasswo
     @Override
     public void toggleEnable(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
         user.setEnable(!user.isEnable());
         userRepository.save(user);
     }

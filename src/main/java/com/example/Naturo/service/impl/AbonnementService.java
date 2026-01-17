@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -74,11 +75,11 @@ public class AbonnementService implements IAbonnement {
     }
 
     @Override
-    @Transactional
     public void desactiverAbonnement(Long id) {
         Abonnement abonnement = abonnementRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Abonnement non trouvé"));
         abonnement.setActif(false);
+        abonnement.setUpdatedAt(LocalDateTime.now());
         abonnementRepository.save(abonnement);
     }
 

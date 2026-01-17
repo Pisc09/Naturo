@@ -5,6 +5,7 @@ import com.example.Naturo.response.AnalyseTypeResponse;
 import com.example.Naturo.service.IAnalyseType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/analyse-types")
+@RequestMapping(value = "/api/admin/analyse-types", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class AnalyseTypeController {
 
@@ -54,7 +55,7 @@ public class AnalyseTypeController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnalyseTypeResponse> update(@PathVariable Long id, @Valid @RequestBody AnalyseTypeRequest request) {
         return ResponseEntity.ok(analyseTypeService.updateAnalyseType(id, request));
     }

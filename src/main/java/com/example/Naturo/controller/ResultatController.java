@@ -5,6 +5,7 @@ import com.example.Naturo.response.ResultatResponse;
 import com.example.Naturo.service.IResultat;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,14 +14,14 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/resultats")
+@RequestMapping(value = "/api/resultats", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ResultatController {
 
     private final IResultat resultatService;
 
     @GetMapping
-    public ResponseEntity<List<ResultatResponse>> getAll() {
+    public ResponseEntity<List<ResultatResponse>> getAllResultats() {
         return ResponseEntity.ok(resultatService.findAll());
     }
 
@@ -47,7 +48,7 @@ public class ResultatController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResultatResponse> updateResultat(@PathVariable Long id, @Valid @RequestBody ResultatRequest request) {
         return ResponseEntity.ok(resultatService.updateResultat(id, request));
     }

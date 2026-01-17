@@ -5,6 +5,7 @@ import com.example.Naturo.response.AdminResponse;
 import com.example.Naturo.service.IAdmin;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/admins")
+@RequestMapping(value = "/api/admin/admins", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -42,7 +43,7 @@ public class AdminController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AdminResponse> updateAdmin(@PathVariable Long id, @Valid @RequestBody AdminRequest request) {
         return ResponseEntity.ok(adminService.updateAdmin(id, request));
     }

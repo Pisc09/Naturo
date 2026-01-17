@@ -5,6 +5,7 @@ import com.example.Naturo.response.AbonnementResponse;
 import com.example.Naturo.service.IAbonnement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/abonnements")
+@RequestMapping(value = "/api/abonnements", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class AbonnementController {
 
@@ -42,7 +43,7 @@ public class AbonnementController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AbonnementResponse> updateAbonnement(@PathVariable Long id, @Valid @RequestBody AbonnementRequest request) {
         AbonnementResponse updated = abonnementService.updateAbonnement(id, request);
         return ResponseEntity.ok(updated);

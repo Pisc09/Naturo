@@ -14,6 +14,8 @@ public interface IUser {
 
     Optional<UserResponse> findByEmail(String email);
 
+    UserResponse findByIdOrThrow(Long id);
+
     UserResponse createUser(UserRequest request);
 
     UserResponse updateUser(Long id, UserRequest request);

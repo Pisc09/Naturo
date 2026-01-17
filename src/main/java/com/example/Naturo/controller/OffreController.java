@@ -5,6 +5,7 @@ import com.example.Naturo.response.OffreResponse;
 import com.example.Naturo.service.IOffre;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/offres")
+@RequestMapping(value = "/api/offres", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class OffreController {
 
@@ -50,7 +51,7 @@ public class OffreController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OffreResponse> updateOffre(@PathVariable Long id, @Valid @RequestBody OffreRequest request) {
         return ResponseEntity.ok(offreService.updateOffre(id, request));
     }
